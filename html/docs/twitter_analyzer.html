@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>twitter_analyzer module &mdash; Twitter Sentiment Analysis 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Welcome to Twitter Sentiment Analysis’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Twitter Sentiment Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">twitter_analyzer module</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Twitter Sentiment Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>twitter_analyzer module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/docs/twitter_analyzer.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-twitter_analyzer">
+<span id="twitter-analyzer-module"></span><h1>twitter_analyzer module<a class="headerlink" href="#module-twitter_analyzer" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.GOVERNMENT_CONTEXT_KEYWORDS">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">GOVERNMENT_CONTEXT_KEYWORDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['government',</span> <span class="pre">'administration',</span> <span class="pre">'FBI',</span> <span class="pre">'CIA']</span></em><a class="headerlink" href="#twitter_analyzer.GOVERNMENT_CONTEXT_KEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>list(str): reference array to identify the context of the tweet</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.NUMBER_OF_TWEETS">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">NUMBER_OF_TWEETS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">100</span></em><a class="headerlink" href="#twitter_analyzer.NUMBER_OF_TWEETS" title="Permalink to this definition">¶</a></dt>
+<dd><p>int: number of tweets to pull from Twitter for each topic</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.POLICY_CONTEXT_KEYWORDS">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">POLICY_CONTEXT_KEYWORDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['policy',</span> <span class="pre">'legislature',</span> <span class="pre">'law',</span> <span class="pre">'election',</span> <span class="pre">'judiciary',</span> <span class="pre">'constitution',</span> <span class="pre">'supremecourt']</span></em><a class="headerlink" href="#twitter_analyzer.POLICY_CONTEXT_KEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>list(str): reference array to identify the context of the tweet</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.RUN_MODE">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">RUN_MODE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Offline'</span></em><a class="headerlink" href="#twitter_analyzer.RUN_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>str: offline or online modes</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.SEARCH_TOPICS">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">SEARCH_TOPICS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['privacy',</span> <span class="pre">'trust',</span> <span class="pre">'security',</span> <span class="pre">'cybersecurity',</span> <span class="pre">'technology',</span> <span class="pre">'dataprotection',</span> <span class="pre">'hacking',</span> <span class="pre">'infosec',</span> <span class="pre">'tech',</span> <span class="pre">'hacker',</span> <span class="pre">'datasecurity',</span> <span class="pre">'cybercrime',</span> <span class="pre">'dataprivacy',</span> <span class="pre">'linux',</span> <span class="pre">'data',</span> <span class="pre">'gdpr',</span> <span class="pre">'informationsecurity',</span> <span class="pre">'encryption',</span> <span class="pre">'iot',</span> <span class="pre">'cyber',</span> <span class="pre">'internet',</span> <span class="pre">'cyberattack',</span> <span class="pre">'windowtint',</span> <span class="pre">'protection',</span> <span class="pre">'programming',</span> <span class="pre">'vpn',</span> <span class="pre">'hackers',</span> <span class="pre">'malware']</span></em><a class="headerlink" href="#twitter_analyzer.SEARCH_TOPICS" title="Permalink to this definition">¶</a></dt>
+<dd><p>list(str): search terms (topics)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="twitter_analyzer.TECHNOLOGY_CONTEXT_KEYWORDS">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">TECHNOLOGY_CONTEXT_KEYWORDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['tech',</span> <span class="pre">'technology',</span> <span class="pre">'gadgets',</span> <span class="pre">'android',</span> <span class="pre">'smartphone',</span> <span class="pre">'electronics',</span> <span class="pre">'computer',</span> <span class="pre">'apple',</span> <span class="pre">'iphone',</span> <span class="pre">'google',</span> <span class="pre">'facebook',</span> <span class="pre">'windows']</span></em><a class="headerlink" href="#twitter_analyzer.TECHNOLOGY_CONTEXT_KEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>list: reference array to identify the context of the tweet</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.clean_tweets">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">clean_tweets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#clean_tweets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.clean_tweets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loop through the dataframe and apply preproocess_tweets() method to
+clean the tweets.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df (DataFrame): tweets DataFrame</p>
+</dd>
+<dt>Returns:</dt><dd><p>DataFrame: pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.context_filter">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">context_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#context_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.context_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identifies the context of the tweet using identify_context(),
+adds a new column to the dataframe to indicate the context,
+and <code class="docutils literal notranslate"><span class="pre">returns</span></code> the updated dataframe.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df (Dataframe): De-duplicated dataframe of tweets</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dataframe: pandas Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.get_polarity_subjectivity">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">get_polarity_subjectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#get_polarity_subjectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.get_polarity_subjectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates sentiment using TextBlob and sentiment stats using Pandas
+dataframe. Gives two values: polarity which describes how positive or
+negative the tweet is and ranges from -1 to 1, and subjectivity which
+describes how objective or subjective the tweet is and ranges from 0 to 1.
+Loops through each context dataframe and groups them by context to
+calculate, sentiment and polarity mean, max, min and median. Loops through
+the preprocessed tweets and stores values of polarity and subjectivity in
+the dataframe with new columns. Applies a filter on the dataframe to
+identify the flags, returns the columns polarity and subjectivity and
+groups by the context identified and applies aggregate function to
+calculate sentiment statistics and returns mean, max, min, and median.
+Creates new moving average dataframe to get polarity for a given window
+size in our case 10 with minimum set to 3 and return stats and sentiment
+results for each context.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df (DataFrame): pre-processed DataFrame of tweets</p>
+</dd>
+<dt>Returns:</dt><dd><p>[[DataFrame], [list]]: [[context sentiments],
+[context stats]] for each context</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.get_tweets_offline">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">get_tweets_offline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#get_tweets_offline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.get_tweets_offline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads json files from <cite>/data</cite> into pandas DataFrame and removes
+duplicates</p>
+<p>Note: If <cite>/data</cite> is empty program will exit with
+<code class="docutils literal notranslate"><span class="pre">No</span> <span class="pre">offline</span> <span class="pre">data</span> <span class="pre">to</span> <span class="pre">load</span></code> message</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Dataframe: pandas Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.get_tweets_online">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">get_tweets_online</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#get_tweets_online"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.get_tweets_online" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search the Twitter datasets using search terms: <code class="docutils literal notranslate"><span class="pre">Returns</span></code> pandas
+Dataframe. searches only English tweets and sets result type to popular,
+iterates on the list of search topics and pulls predefined number of tweets
+<cite>NUMBER_OF_TWEETS</cite> for each search topic defined in <cite>SEARCH_TOPICS</cite> list</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>Outputs dataframe to a json file using pandas to_json method for
+offline analysis</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dataframe: pandas Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.identify_context">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">identify_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tweet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contexts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#identify_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.identify_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a tweet contains a context.</p>
+<p>Return: <cite>True</cite> if context was found, <cite>False</cite> otherwise</p>
+<p>Rtype: bool</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.initialize_api">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">initialize_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#initialize_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.initialize_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize twitter api variables to access Twitter developer account.
+Expects: <cite>API_KEY, API_SECRET_KEY, ACCESS_TOKEN, ACCESS_TOKEN_SECRET</cite>
+environment variables to be set.</p>
+<p>Return: API instance</p>
+<p>Rtype: tweepy.API</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.preprocess_tweets">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">preprocess_tweets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tweet</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#preprocess_tweets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.preprocess_tweets" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method essentially filters out tweets with useless words. Creates a
+new variable preprocessed_tweet which is assigned a passed in tweet.
+Replaces punctuation marks with a blank value. Removes stopwords. A stop
+word is a commonly used word (such as “the”, “a”, “an”, “in”) that a search
+engine has been programmed to ignore, both when indexing entries for
+searching and when retrieving them as the result of a search query and
+lemmatizes the remaining words (reduces words to its base form).
+Lemmatization considers the context and converts the word to its meaningful
+base form. For example, lemmatization would correctly identify the base
+form of ‘caring’ to ‘care’</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tweet (str): single tweet</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: pre-processed tweet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twitter_analyzer.visualize_data">
+<span class="sig-prename descclassname"><span class="pre">twitter_analyzer.</span></span><span class="sig-name descname"><span class="pre">visualize_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">technology</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">government</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twitter_analyzer.html#visualize_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twitter_analyzer.visualize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function receives context keywords as parameters. Then creates a graph
+and a table using make_subplots(). The table displays information about
+polarity and subjectivity for each context, and the graph displays
+sentiment for each context over time. go.Scatter: Creates a figure and adds
+three lines for each context with tweet’s timestamp as its x axis and
+polarity as its y axis. go.Table: creates a table and displays each
+context stats</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>technology ([[DataFrame], [list]]): Predefined context
+policy ([[DataFrame], [list]]): Predefined context
+government ([[DataFrame], [list]]): Predefined context</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Twitter Sentiment Analysis’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nino Tsankashvili.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

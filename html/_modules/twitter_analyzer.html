@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>twitter_analyzer &mdash; Twitter Sentiment Analysis 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Twitter Sentiment Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docs/twitter_analyzer.html">twitter_analyzer module</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Twitter Sentiment Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>twitter_analyzer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for twitter_analyzer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tweepy</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">from</span> <span class="nn">textblob</span> <span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="kn">from</span> <span class="nn">plotly.subplots</span> <span class="kn">import</span> <span class="n">make_subplots</span>
+<span class="kn">from</span> <span class="nn">nltk.stem</span> <span class="kn">import</span> <span class="n">WordNetLemmatizer</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">lemmatizer</span> <span class="o">=</span> <span class="n">WordNetLemmatizer</span><span class="p">()</span>
+
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;stopwords&quot;</span><span class="p">)</span>
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;wordnet&quot;</span><span class="p">)</span>
+<span class="n">stop_words</span> <span class="o">=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">)</span>
+
+<span class="c1"># RUN_MODE = &quot;Online&quot;</span>
+<span class="n">RUN_MODE</span> <span class="o">=</span> <span class="s2">&quot;Offline&quot;</span>
+<span class="sd">&quot;&quot;&quot;str: offline or online modes</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">OFFLINE_JSON_FILE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;data/offline_tweets_&quot;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span> <span class="o">+</span>
+    <span class="s2">&quot;.json&quot;</span>
+<span class="p">)</span>
+
+<span class="n">NUMBER_OF_TWEETS</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="sd">&quot;&quot;&quot;int: number of tweets to pull from Twitter for each topic</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># search terms (topics)</span>
+<span class="n">SEARCH_TOPICS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;privacy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;trust&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;security&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cybersecurity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;technology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dataprotection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hacking&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;infosec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tech&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hacker&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;datasecurity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cybercrime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dataprivacy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;linux&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gdpr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;informationsecurity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;encryption&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;iot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cyber&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;internet&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cyberattack&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;windowtint&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;protection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;programming&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vpn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hackers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;malware&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;list(str): search terms (topics)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># search terms to identify the context of the tweets</span>
+<span class="n">TECHNOLOGY_CONTEXT_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;tech&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;technology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gadgets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;android&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;smartphone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electronics&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;computer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;apple&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;iphone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;google&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;facebook&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;windows&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;list: reference array to identify the context of the tweet</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">POLICY_CONTEXT_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;policy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;legislature&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;law&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;election&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;judiciary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;constitution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;supremecourt&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;list(str): reference array to identify the context of the tweet</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">GOVERNMENT_CONTEXT_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;government&quot;</span><span class="p">,</span> <span class="s2">&quot;administration&quot;</span><span class="p">,</span> <span class="s2">&quot;FBI&quot;</span><span class="p">,</span> <span class="s2">&quot;CIA&quot;</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;list(str): reference array to identify the context of the tweet</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="initialize_api"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.initialize_api">[docs]</a><span class="k">def</span> <span class="nf">initialize_api</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Initialize twitter api variables to access Twitter developer account.</span>
+<span class="sd">    Expects: `API_KEY, API_SECRET_KEY, ACCESS_TOKEN, ACCESS_TOKEN_SECRET`</span>
+<span class="sd">    environment variables to be set.</span>
+
+<span class="sd">    Return: API instance</span>
+
+<span class="sd">    Rtype: tweepy.API</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">)</span>
+    <span class="n">api_sectret_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_SECRET_KEY&quot;</span><span class="p">)</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ACCESS_TOKEN&quot;</span><span class="p">)</span>
+    <span class="n">access_token_secret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ACCESS_TOKEN_SECRET&quot;</span><span class="p">)</span>
+
+    <span class="c1"># connect to Twitter using keys</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">OAuthHandler</span><span class="p">(</span>
+        <span class="n">consumer_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="o">=</span><span class="n">api_sectret_key</span><span class="p">)</span>
+    <span class="n">auth</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span>
+    <span class="n">api</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">API</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">wait_on_rate_limit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">wait_on_rate_limit_notify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">api</span></div>
+
+
+<div class="viewcode-block" id="get_tweets_online"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.get_tweets_online">[docs]</a><span class="k">def</span> <span class="nf">get_tweets_online</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Search the Twitter datasets using search terms: ``Returns`` pandas</span>
+<span class="sd">    Dataframe. searches only English tweets and sets result type to popular,</span>
+<span class="sd">    iterates on the list of search topics and pulls predefined number of tweets</span>
+<span class="sd">    `NUMBER_OF_TWEETS` for each search topic defined in `SEARCH_TOPICS` list</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Outputs dataframe to a json file using pandas to_json method for</span>
+<span class="sd">        offline analysis</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe: pandas Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># search the Twitter datasets using the search terms</span>
+    <span class="n">api</span> <span class="o">=</span> <span class="n">initialize_api</span><span class="p">()</span>
+    <span class="c1"># create an empty list for tweets</span>
+    <span class="n">tweets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">search_topic</span> <span class="ow">in</span> <span class="n">SEARCH_TOPICS</span><span class="p">:</span>
+        <span class="n">search_key</span> <span class="o">=</span> <span class="n">search_topic</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">search_key</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">Cursor</span><span class="p">(</span>
+            <span class="n">api</span><span class="o">.</span><span class="n">search</span><span class="p">,</span>
+            <span class="n">q</span><span class="o">=</span><span class="n">search_key</span><span class="p">,</span>
+            <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+            <span class="n">tweet_mode</span><span class="o">=</span><span class="s2">&quot;extended&quot;</span><span class="p">,</span>
+            <span class="n">result_type</span><span class="o">=</span><span class="s2">&quot;popular&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">NUMBER_OF_TWEETS</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">tweet</span> <span class="ow">in</span> <span class="n">query</span><span class="p">:</span>
+            <span class="c1"># weed out retweets</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tweet</span><span class="p">,</span> <span class="s2">&quot;retweeted_status&quot;</span><span class="p">):</span>
+                <span class="n">tweets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;Tweet&quot;</span><span class="p">:</span> <span class="n">tweet</span><span class="o">.</span><span class="n">retweeted_status</span><span class="o">.</span><span class="n">full_text</span><span class="p">,</span>
+                        <span class="s2">&quot;Timestamp&quot;</span><span class="p">:</span> <span class="n">tweet</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># add tweets to the tweets list</span>
+                <span class="n">tweets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;Tweet&quot;</span><span class="p">:</span> <span class="n">tweet</span><span class="o">.</span><span class="n">full_text</span><span class="p">,</span>
+                        <span class="s2">&quot;Timestamp&quot;</span><span class="p">:</span> <span class="n">tweet</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of tweets added:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tweets</span><span class="p">))</span>
+
+    <span class="c1"># create dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">tweets</span><span class="p">)</span>
+    <span class="c1"># remove duplicate tweets from the dataset</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;Tweet&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># output dataframe for offline analysis</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">OFFLINE_JSON_FILE</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">,</span> <span class="n">force_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of tweets loaded:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_tweets_offline"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.get_tweets_offline">[docs]</a><span class="k">def</span> <span class="nf">get_tweets_offline</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Reads json files from `/data` into pandas DataFrame and removes</span>
+<span class="sd">    duplicates</span>
+
+<span class="sd">    Note: If `/data` is empty program will exit with</span>
+<span class="sd">    ``No offline data to load`` message</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe: pandas Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">glob</span>
+
+    <span class="n">list_of_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;data/*.json&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">json_file</span> <span class="ow">in</span> <span class="n">list_of_files</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">json_file</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No offline data to load&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;Tweet&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of tweets loaded:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="identify_context"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.identify_context">[docs]</a><span class="k">def</span> <span class="nf">identify_context</span><span class="p">(</span><span class="n">tweet</span><span class="p">,</span> <span class="n">contexts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines if a tweet contains a context.</span>
+
+<span class="sd">    Return: `True` if context was found, `False` otherwise</span>
+
+<span class="sd">    Rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">contexts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tweet</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">flag</span></div>
+
+
+<div class="viewcode-block" id="context_filter"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.context_filter">[docs]</a><span class="k">def</span> <span class="nf">context_filter</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Identifies the context of the tweet using identify_context(),</span>
+<span class="sd">    adds a new column to the dataframe to indicate the context,</span>
+<span class="sd">    and ``returns`` the updated dataframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (Dataframe): De-duplicated dataframe of tweets</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe: pandas Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;technology&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">identify_context</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">TECHNOLOGY_CONTEXT_KEYWORDS</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">identify_context</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">POLICY_CONTEXT_KEYWORDS</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;government&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">identify_context</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">GOVERNMENT_CONTEXT_KEYWORDS</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="preprocess_tweets"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.preprocess_tweets">[docs]</a><span class="k">def</span> <span class="nf">preprocess_tweets</span><span class="p">(</span><span class="n">tweet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This method essentially filters out tweets with useless words. Creates a</span>
+<span class="sd">    new variable preprocessed_tweet which is assigned a passed in tweet.</span>
+<span class="sd">    Replaces punctuation marks with a blank value. Removes stopwords. A stop</span>
+<span class="sd">    word is a commonly used word (such as “the”, “a”, “an”, “in”) that a search</span>
+<span class="sd">    engine has been programmed to ignore, both when indexing entries for</span>
+<span class="sd">    searching and when retrieving them as the result of a search query and</span>
+<span class="sd">    lemmatizes the remaining words (reduces words to its base form).</span>
+<span class="sd">    Lemmatization considers the context and converts the word to its meaningful</span>
+<span class="sd">    base form. For example, lemmatization would correctly identify the base</span>
+<span class="sd">    form of ‘caring’ to ‘care’</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tweet (str): single tweet</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: pre-processed tweet</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">preprocessed_tweet</span> <span class="o">=</span> <span class="n">tweet</span>
+    <span class="n">preprocessed_tweet</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^\w\s]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">preprocessed_tweet</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">preprocessed_tweet</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stop_words</span>
+    <span class="p">)</span>
+    <span class="n">preprocessed_tweet</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">preprocessed_tweet</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">preprocessed_tweet</span></div>
+
+
+<div class="viewcode-block" id="clean_tweets"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.clean_tweets">[docs]</a><span class="k">def</span> <span class="nf">clean_tweets</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loop through the dataframe and apply preproocess_tweets() method to</span>
+<span class="sd">    clean the tweets.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (DataFrame): tweets DataFrame</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame: pandas DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Processed Tweet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">preprocess_tweets</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_polarity_subjectivity"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.get_polarity_subjectivity">[docs]</a><span class="k">def</span> <span class="nf">get_polarity_subjectivity</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates sentiment using TextBlob and sentiment stats using Pandas</span>
+<span class="sd">    dataframe. Gives two values: polarity which describes how positive or</span>
+<span class="sd">    negative the tweet is and ranges from -1 to 1, and subjectivity which</span>
+<span class="sd">    describes how objective or subjective the tweet is and ranges from 0 to 1.</span>
+<span class="sd">    Loops through each context dataframe and groups them by context to</span>
+<span class="sd">    calculate, sentiment and polarity mean, max, min and median. Loops through</span>
+<span class="sd">    the preprocessed tweets and stores values of polarity and subjectivity in</span>
+<span class="sd">    the dataframe with new columns. Applies a filter on the dataframe to</span>
+<span class="sd">    identify the flags, returns the columns polarity and subjectivity and</span>
+<span class="sd">    groups by the context identified and applies aggregate function to</span>
+<span class="sd">    calculate sentiment statistics and returns mean, max, min, and median.</span>
+<span class="sd">    Creates new moving average dataframe to get polarity for a given window</span>
+<span class="sd">    size in our case 10 with minimum set to 3 and return stats and sentiment</span>
+<span class="sd">    results for each context.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (DataFrame): pre-processed DataFrame of tweets</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [[DataFrame], [list]]: [[context sentiments],</span>
+<span class="sd">        [context stats]] for each context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;polarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Processed Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">TextBlob</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">polarity</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subjectivity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Processed Tweet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">TextBlob</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">subjectivity</span>
+    <span class="p">)</span>
+
+    <span class="n">technology_info</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;technology&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;technology&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">,</span> <span class="s2">&quot;subjectivity&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;technology&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">policy_info</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;policy&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">,</span> <span class="s2">&quot;subjectivity&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;policy&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">government_info</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;government&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;government&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">,</span> <span class="s2">&quot;subjectivity&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;government&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">technology_stats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;technology&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">technology_info</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">technology_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">policy_stats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">policy_info</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">policy_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">government_stats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;government&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">government_info</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">government_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">technology</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;technology&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">]]</span>
+    <span class="n">technology</span> <span class="o">=</span> <span class="n">technology</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">polarity</span> <span class="o">=</span> <span class="n">technology</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">technology</span><span class="p">[</span><span class="s2">&quot;Polarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">polarity</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">polarity</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">]]</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">polarity</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;Polarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">polarity</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">polarity</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="n">government</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;government&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][[</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;polarity&quot;</span><span class="p">]]</span>
+    <span class="n">government</span> <span class="o">=</span> <span class="n">government</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">polarity</span> <span class="o">=</span> <span class="n">government</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">government</span><span class="p">[</span><span class="s2">&quot;Polarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">polarity</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">polarity</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">technology</span><span class="p">,</span> <span class="n">technology_stats</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">policy</span><span class="p">,</span> <span class="n">policy_stats</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">government</span><span class="p">,</span> <span class="n">government_stats</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="visualize_data"><a class="viewcode-back" href="../docs/twitter_analyzer.html#twitter_analyzer.visualize_data">[docs]</a><span class="k">def</span> <span class="nf">visualize_data</span><span class="p">(</span><span class="n">technology</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="n">government</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function receives context keywords as parameters. Then creates a graph</span>
+<span class="sd">    and a table using make_subplots(). The table displays information about</span>
+<span class="sd">    polarity and subjectivity for each context, and the graph displays</span>
+<span class="sd">    sentiment for each context over time. go.Scatter: Creates a figure and adds</span>
+<span class="sd">    three lines for each context with tweet’s timestamp as its x axis and</span>
+<span class="sd">    polarity as its y axis. go.Table: creates a table and displays each</span>
+<span class="sd">    context stats</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        technology ([[DataFrame], [list]]): Predefined context</span>
+<span class="sd">        policy ([[DataFrame], [list]]): Predefined context</span>
+<span class="sd">        government ([[DataFrame], [list]]): Predefined context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span>
+        <span class="n">rows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">cols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">subplot_titles</span><span class="o">=</span><span class="p">([</span><span class="s1">&#39;Context Stats&#39;</span><span class="p">,</span> <span class="s1">&#39;Sentiment Trends&#39;</span><span class="p">]),</span>
+        <span class="n">shared_xaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">vertical_spacing</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+        <span class="n">specs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">}],</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;scatter&quot;</span><span class="p">}]],</span>
+    <span class="p">)</span>
+
+    <span class="n">table_headers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Context&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Polarity: Mean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Polarity: Max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Polarity: Min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Polarity: Median&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Subjectivity: Mean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Subjectivity: Max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Subjectivity: Min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Subjectivity: Median&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">technology_color</span> <span class="o">=</span> <span class="s1">&#39;lightsalmon&#39;</span>
+    <span class="n">policy_color</span> <span class="o">=</span> <span class="s1">&#39;lightgreen&#39;</span>
+    <span class="n">government_color</span> <span class="o">=</span> <span class="s1">&#39;skyblue&#39;</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
+            <span class="n">header</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">table_headers</span><span class="p">),</span>
+            <span class="n">cells</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">government</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">policy</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">technology</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">line_color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
+                <span class="n">fill_color</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">[</span><span class="n">technology_color</span><span class="p">,</span> <span class="n">policy_color</span><span class="p">,</span> <span class="n">government_color</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">],</span>
+                <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">technology</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">],</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">technology</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Polarity&quot;</span><span class="p">],</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines+markers&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;technology&quot;</span><span class="p">,</span>
+            <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">technology_color</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">policy</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">],</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">policy</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Polarity&quot;</span><span class="p">],</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines+markers&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;policy&quot;</span><span class="p">,</span>
+            <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">policy_color</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">government</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">],</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">government</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Polarity&quot;</span><span class="p">],</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines+markers&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;government&quot;</span><span class="p">,</span>
+            <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">government_color</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+        <span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Twitter Sentiment Analysis&quot;</span><span class="p">,</span>
+        <span class="n">title_font_color</span><span class="o">=</span><span class="s1">&#39;rgb(29, 161, 242)&#39;</span><span class="p">,</span>
+        <span class="n">legend_title_text</span><span class="o">=</span><span class="s2">&quot;Context&quot;</span><span class="p">,</span>
+        <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+        <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Sentiment&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">RUN_MODE</span> <span class="o">==</span> <span class="s2">&quot;Online&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Online mode&quot;</span><span class="p">)</span>
+        <span class="n">raw_tweets</span> <span class="o">=</span> <span class="n">get_tweets_online</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Offline mode&quot;</span><span class="p">)</span>
+        <span class="n">raw_tweets</span> <span class="o">=</span> <span class="n">get_tweets_offline</span><span class="p">()</span>
+
+    <span class="n">filtered_tweets</span> <span class="o">=</span> <span class="n">context_filter</span><span class="p">(</span><span class="n">raw_tweets</span><span class="p">)</span>
+    <span class="n">ready_tweets</span> <span class="o">=</span> <span class="n">clean_tweets</span><span class="p">(</span><span class="n">filtered_tweets</span><span class="p">)</span>
+
+    <span class="n">technology</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="n">government</span> <span class="o">=</span> <span class="n">get_polarity_subjectivity</span><span class="p">(</span>
+        <span class="n">ready_tweets</span>
+    <span class="p">)</span>
+
+    <span class="n">visualize_data</span><span class="p">(</span><span class="n">technology</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="n">government</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nino Tsankashvili.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
